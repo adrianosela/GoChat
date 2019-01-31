@@ -2,7 +2,11 @@
 
 This Project is inspired by the [chat example from the gorilla/websockets library.](https://github.com/gorilla/websocket/tree/master/examples/chat)
 
-Currently the controller only broadcasts messages to all peers. Enabling messaging specific peers by ID is a work in progress
+### WIP:
+* Enabling messaging specific peers by ID, currently the controller only broadcasts messages to all peers
+* Making a generic enough interface so that developers can adapt the chat service to their already existing APIs
+* Adding end-to-end encryption in a way that the controller cannot see messages from peers (i.e. not SSL)
+* Defining appropriate constants and defaults to the websocket connections and the controller's channels
 
 ### Usage:
 
