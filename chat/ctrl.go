@@ -8,6 +8,7 @@ type Controller struct {
 	BroadcastChan  chan []byte      // Channel to broadcast a message to all peers
 	RegisterChan   chan *Peer       // Channel for registration requests
 	DeregisterChan chan *Peer       // Channel for de-registration requests
+	DirectMsgChan  chan *DirectMsg
 }
 
 // NewController is the constructor for a chat controller
@@ -17,6 +18,7 @@ func NewController() *Controller {
 		BroadcastChan:  make(chan []byte),
 		RegisterChan:   make(chan *Peer),
 		DeregisterChan: make(chan *Peer),
+		DirectMsgChan:  make(chan *DirectMsg),
 	}
 }
 
@@ -34,7 +36,7 @@ func (c *Controller) Start() {
 		case peer := <-c.DeregisterChan:
 			if _, ok := c.OpenSessions[peer.ID]; ok {
 				delete(c.OpenSessions, peer.ID)
-				close(peer.OutboundMsgChan)
+				close(peer.MsgChan)
 			}
 			log.Printf("Peer %s left server\n", peer.ID)
 		// broadcast message to all peers
@@ -42,10 +44,21 @@ func (c *Controller) Start() {
 			log.Printf("Broadcasting message to %d peers\n", len(c.OpenSessions))
 			for peerID := range c.OpenSessions {
 				select {
-				case c.OpenSessions[peerID].OutboundMsgChan <- msg:
+				case c.OpenSessions[peerID].MsgChan <- msg:
 				default:
-					close(c.OpenSessions[peerID].OutboundMsgChan)
+					close(c.OpenSessions[peerID].MsgChan)
 					delete(c.OpenSessions, peerID)
+				}
+			}
+		// send direct message from peer to peer
+		case msg := <-c.DirectMsgChan:
+			log.Printf("Directing message from peer %s to peer %s\n", msg.From, msg.To)
+			if to, ok := c.OpenSessions[msg.To]; ok {
+				select {
+				case c.OpenSessions[to.ID].MsgChan <- msg.Data:
+				default:
+					close(c.OpenSessions[to.ID].MsgChan)
+					delete(c.OpenSessions, to.ID)
 				}
 			}
 		}

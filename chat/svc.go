@@ -32,7 +32,7 @@ func (c *Controller) serveWS(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	// create new peer
-	NewPeer(c, conn, make(chan []byte, 256), make(chan []byte, 256)).enroll()
+	NewPeer(c, conn, make(chan []byte, 256)).enroll()
 }
 
 /* We do this funny thing because this package is meant work as a Go library;

@@ -18,21 +18,19 @@ const (
 
 // Peer is a middleman between the websocket connection and the contoller.
 type Peer struct {
-	ID              string
-	Ctrl            *Controller
-	WSConn          *websocket.Conn
-	OutboundMsgChan chan []byte
-	InboundMsgChan  chan []byte
+	ID      string
+	Ctrl    *Controller
+	WSConn  *websocket.Conn
+	MsgChan chan []byte
 }
 
 // NewPeer is the constructor for the Peer abstraction of a websockets client
-func NewPeer(ctrl *Controller, conn *websocket.Conn, outChan, inChan chan []byte) *Peer {
+func NewPeer(ctrl *Controller, conn *websocket.Conn, outChan chan []byte) *Peer {
 	return &Peer{
-		ID:              uuid.Must(uuid.NewV4()).String(),
-		Ctrl:            ctrl,
-		WSConn:          conn,
-		OutboundMsgChan: outChan,
-		InboundMsgChan:  inChan,
+		ID:      uuid.Must(uuid.NewV4()).String(),
+		Ctrl:    ctrl,
+		WSConn:  conn,
+		MsgChan: outChan,
 	}
 }
 
@@ -73,7 +71,7 @@ func (p *Peer) writer() {
 	}()
 	for {
 		select {
-		case message, ok := <-p.OutboundMsgChan:
+		case message, ok := <-p.MsgChan:
 			p.WSConn.SetWriteDeadline(time.Now().Add(writeWait))
 			if !ok {
 				p.WSConn.WriteMessage(websocket.CloseMessage, []byte{})
@@ -85,10 +83,10 @@ func (p *Peer) writer() {
 			}
 			w.Write(message)
 			// Add queued chat messages to the current websocket message.
-			n := len(p.OutboundMsgChan)
+			n := len(p.MsgChan)
 			for i := 0; i < n; i++ {
 				w.Write([]byte("\n"))
-				w.Write(<-p.OutboundMsgChan)
+				w.Write(<-p.MsgChan)
 			}
 			if err := w.Close(); err != nil {
 				return
