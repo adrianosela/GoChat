@@ -1,6 +1,6 @@
 ## GoChat! - A simple chat server for your Go APIs
 
-This Project is inspired by the [chat example from the gorilla/websockets library.](https://github.com/gorilla/websocket/tree/master/examples/chat)
+This Project is inspired by the [chat example from the gorilla/websocket library.](https://github.com/gorilla/websocket/tree/master/examples/chat)
 
 ### WIP:
 * Making a generic enough interface so that developers can adapt the chat service to their already existing APIs
