@@ -7,11 +7,11 @@ import (
 
 // Controller represents the central controller for a chat service
 type Controller struct {
-	OpenSessions   map[string]*Peer // Map of peer to session data (now just a bool)
+	OpenSessions   map[string]*Peer // Map of peer id to peer object
 	BroadcastChan  chan []byte      // Channel to broadcast a message to all peers
 	RegisterChan   chan *Peer       // Channel for registration requests
 	DeregisterChan chan *Peer       // Channel for de-registration requests
-	DirectMsgChan  chan *Msg
+	DirectMsgChan  chan *Msg	// Channel for messages from a peer to another peer
 }
 
 // NewController is the constructor for a chat controller
