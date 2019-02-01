@@ -67,7 +67,7 @@ func (p *Peer) reader() {
 		// FOR NOW... if form "to" field is empty, broadcast, else send to direct msg chan
 		if msg.To != "" {
 			p.Ctrl.DirectMsgChan <- &msg
-			return
+			continue
 		}
 		p.Ctrl.BroadcastChan <- []byte(msg.Data)
 	}

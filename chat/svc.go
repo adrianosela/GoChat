@@ -65,6 +65,7 @@ window.onload = function () {
         }
         conn.send(JSON.stringify({ data: msg.value, to: to.value }));
         msg.value = "";
+				to.value = "";
         return false;
     };
     if (window["WebSocket"]) {
