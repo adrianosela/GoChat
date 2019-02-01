@@ -49,6 +49,7 @@ window.onload = function () {
     var conn;
     var msg = document.getElementById("msg");
     var log = document.getElementById("log");
+    var to = document.getElementById("to");
     function appendLog(item) {
         var doScroll = log.scrollTop > log.scrollHeight - log.clientHeight - 1;
         log.appendChild(item);
@@ -65,7 +66,7 @@ window.onload = function () {
         }
         conn.send(JSON.stringify({ data: msg.value, to: to.value }));
         msg.value = "";
-				to.value = "";
+	to.value = "";
         return false;
     };
     if (window["WebSocket"]) {
@@ -127,9 +128,9 @@ body {
 <body>
 <div id="log"></div>
 <form id="form">
-    <input type="submit" value="Send" />
-    <input type="text" id="msg" size="64"/>
-		<input type="text" id="to" size="38"/>
+	<input type="submit" value="Send" />
+   	<input type="text" id="msg" size="64"/>
+	<input type="text" id="to" size="38"/>
 </form>
 </body>
 </html>
