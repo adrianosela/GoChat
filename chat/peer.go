@@ -1,7 +1,7 @@
 package chat
 
 import (
-	"bytes"
+	"encoding/json"
 	"log"
 	"time"
 
@@ -51,15 +51,25 @@ func (p *Peer) reader() {
 	p.WSConn.SetReadDeadline(time.Now().Add(pongWait))
 	p.WSConn.SetPongHandler(func(string) error { p.WSConn.SetReadDeadline(time.Now().Add(pongWait)); return nil })
 	for {
-		_, msg, err := p.WSConn.ReadMessage()
+		_, jsonMsg, err := p.WSConn.ReadMessage()
 		if err != nil {
 			if websocket.IsUnexpectedCloseError(err, websocket.CloseGoingAway, websocket.CloseAbnormalClosure) {
 				log.Printf("WS connection was closed unexpectedly: %s", err)
 			}
 			break
 		}
-		msg = bytes.TrimSpace(bytes.Replace(msg, []byte("\n"), []byte(" "), -1))
-		p.Ctrl.BroadcastChan <- msg
+		var msg Msg
+		if err = json.Unmarshal(jsonMsg, &msg); err != nil {
+			log.Printf("WS connection was closed unexpectedly: %s", err)
+			break
+		}
+		msg.From = p.ID
+		// FOR NOW... if form "to" field is empty, broadcast, else send to direct msg chan
+		if msg.To != "" {
+			p.Ctrl.DirectMsgChan <- &msg
+			return
+		}
+		p.Ctrl.BroadcastChan <- []byte(msg.Data)
 	}
 }
 

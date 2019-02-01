@@ -63,7 +63,7 @@ window.onload = function () {
         if (!msg.value) {
             return false;
         }
-        conn.send(msg.value);
+        conn.send(JSON.stringify({ data: msg.value, to: to.value }));
         msg.value = "";
         return false;
     };
@@ -128,6 +128,7 @@ body {
 <form id="form">
     <input type="submit" value="Send" />
     <input type="text" id="msg" size="64"/>
+		<input type="text" id="to" size="38"/>
 </form>
 </body>
 </html>
